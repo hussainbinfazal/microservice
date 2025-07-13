@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile # or dockerfile.prod if you use a production Dockerfile
+    ports:
+      - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}/${AUTH_DB}
+      - PORT=${AUTH_SERVICE_PORT}
+    volumes:
+      - ./backend/auth-service:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  products-service:
+    build:
+      context: ./backend/product-service
+      dockerfile: Dockerfile #// or dockerfile.prod in case of production Dockerfile
+    ports:
+      - "${PRODUCTS_SERVICE_PORT}:${PRODUCTS_SERVICE_PORT}"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=${MONGODB_URI}/${PRODUCTS_DB}
+      - PORT=${PRODUCTS_SERVICE_PORT}
+
+    volumes:
+      - ./backend/product-service:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./backend/gateway
+      dockerfile: Dockerfile #// or dockerfile.prod in case of production Dockerfile
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    depends_on:
+      - auth-service
+      - products-service
+    environment:
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}:${AUTH_SERVICE_PORT}
+      - PRODUCTS_SERVICE_URL=${PRODUCTS_SERVICE_URL}:${PRODUCTS_SERVICE_PORT}
+      - PORT=${GATEWAY_PORT}
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  products_data:
+  auth_data:
