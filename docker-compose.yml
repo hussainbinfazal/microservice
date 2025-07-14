@@ -4,7 +4,7 @@ services:
   auth-service:
     build:
       context: ./backend/auth-service
-      dockerfile: Dockerfile # or dockerfile.prod if you use a production Dockerfile
+      dockerfile: dockerfile.dev
     ports:
       - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
     depends_on:
@@ -20,7 +20,7 @@ services:
   products-service:
     build:
       context: ./backend/product-service
-      dockerfile: Dockerfile #// or dockerfile.prod in case of production Dockerfile
+      dockerfile: dockerfile.dev
     ports:
       - "${PRODUCTS_SERVICE_PORT}:${PRODUCTS_SERVICE_PORT}"
     depends_on:
@@ -37,7 +37,7 @@ services:
   gateway:
     build:
       context: ./backend/gateway
-      dockerfile: Dockerfile #// or dockerfile.prod in case of production Dockerfile
+      dockerfile: dockerfile.dev
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
     depends_on:
